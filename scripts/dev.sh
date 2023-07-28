@@ -1,0 +1,1 @@
+../node_modules/@mrpelz/boilerplate/config/dev.sh
