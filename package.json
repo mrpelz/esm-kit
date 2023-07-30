@@ -13,13 +13,11 @@
   "module": "dist/main.js",
   "types": "dist/main.d.ts",
   "bin": {
-    "esm-kit-generate-importmap": "scripts/generate-importmap.js",
-    "esm-kit-serve-redirects": "scripts/serve-redirects.js"
+    "esm-kit-generate-importmap": "dist/cli/generate-importmap.js",
+    "esm-kit-serve-redirects": "dist/cli/serve-redirects.js"
   },
   "files": [
-    "dist/**/*.{js,map,ts}",
-    "scripts/generate-importmap.js",
-    "scripts/serve-redirects.js"
+    "dist/**/*.{js,map,ts}"
   ],
   "devDependencies": {
     "@commitlint/cli": "latest",
@@ -38,6 +36,7 @@
     "eslint-plugin-import": "latest",
     "eslint-plugin-prettier": "latest",
     "eslint-plugin-simple-import-sort": "latest",
+    "eslint-plugin-unicorn": "latest",
     "husky": "latest",
     "jest": "latest",
     "prettier": "latest",

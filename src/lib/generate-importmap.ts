@@ -1,7 +1,9 @@
 import { exec } from 'node:child_process';
-import { error } from 'node:console';
+import { error as consoleError } from 'node:console';
 import { freemem } from 'node:os';
 import { promisify } from 'node:util';
+
+import { PREFIX } from './util.js';
 
 type Module = {
   dependencies: Record<string, Module>;
@@ -12,7 +14,20 @@ type ImortMap = {
   scopes: Record<string, Record<string, string>>;
 };
 
-const PREFIX = 'modules';
+const getRootModule = async () => {
+  try {
+    const { stdout } = await promisify(exec)(
+      'npm --offline ls --all --json --long --omit=dev --package-lock-only',
+      { maxBuffer: freemem() / 3 },
+    );
+
+    return JSON.parse(stdout);
+  } catch (error) {
+    consoleError(error);
+
+    return undefined;
+  }
+};
 
 const isModule = (
   input: unknown,
@@ -36,19 +51,19 @@ const getDependencies = (
 
   const { dependencies } = module;
 
-  const scopeKey = scope.length
-    ? [PREFIX, scope.map(encodeURIComponent)].flat()
-    : [PREFIX];
+  const scopeKey =
+    scope.length > 0 ? scope.map((part) => encodeURIComponent(part)) : [];
 
-  const target = scope.length
-    ? (importMap.scopes[`/${scopeKey.join('/')}`] = {})
-    : importMap.imports;
+  const target =
+    scope.length > 0
+      ? (importMap.scopes[`${PREFIX}${scopeKey.join('+')}`] = {})
+      : importMap.imports;
 
   for (const dependency of Object.keys(dependencies)) {
-    const path = [scopeKey, encodeURIComponent(dependency)].flat().join('/');
+    const path = [scopeKey, encodeURIComponent(dependency)].flat().join('+');
 
-    target[dependency] = `/${path}`;
-    target[`${dependency}/`] = `/${path}/`;
+    target[`${dependency}`] = `${PREFIX}${path}`;
+    target[`${dependency}/`] = `${PREFIX}${path}/`;
   }
 
   for (const [key, dependency] of Object.entries(dependencies)) {
@@ -56,23 +71,15 @@ const getDependencies = (
   }
 };
 
-export const generateImportMap = async (): Promise<string> => {
+export const generateImportMap = async (): Promise<ImortMap> => {
   const importMap: ImortMap = {
     imports: {},
     scopes: {},
   };
 
-  const rootModule = await promisify(exec)(
-    'npm --offline ls --all --json --long --omit=dev',
-    { maxBuffer: freemem() / 10 },
-  )
-    .then(({ stdout }) => JSON.parse(stdout))
-    .catch((reason) => {
-      error(reason);
-      return {};
-    });
+  const rootModule = await getRootModule();
 
   getDependencies(rootModule, importMap);
 
-  return JSON.stringify(importMap, undefined, 2);
+  return importMap;
 };
