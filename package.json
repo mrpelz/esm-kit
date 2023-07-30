@@ -1,0 +1,47 @@
+{
+  "name": "@mrpelz/esm-kit",
+  "version": "0.0.0",
+  "description": "smallest possible tooling to allow use of bare module indentifiers in browsers",
+  "repository": {
+    "type": "git",
+    "url": "https://git.i.wurstsalat.cloud/mrpelz/esm-kit.git"
+  },
+  "license": "UNLICENSED",
+  "author": "Lennart Pelz <mail@mrpelz.de>",
+  "type": "module",
+  "main": "dist/main.js",
+  "module": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "bin": {
+    "esm-kit-generate-importmap": "dist/cli/generate-importmap.js",
+    "esm-kit-serve-redirects": "dist/cli/serve-redirects.js"
+  },
+  "files": [
+    "dist/**/*.{js,map,ts}"
+  ],
+  "devDependencies": {
+    "@commitlint/cli": "latest",
+    "@commitlint/config-conventional": "latest",
+    "@commitlint/types": "latest",
+    "@jest/globals": "latest",
+    "@mrpelz/boilerplate": "latest",
+    "@types/eslint": "latest",
+    "@types/node": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "@typescript-eslint/types": "latest",
+    "chokidar-cli": "latest",
+    "eslint": "latest",
+    "eslint-import-resolver-typescript": "latest",
+    "eslint-plugin-import": "latest",
+    "eslint-plugin-prettier": "latest",
+    "eslint-plugin-simple-import-sort": "latest",
+    "eslint-plugin-unicorn": "latest",
+    "husky": "latest",
+    "jest": "latest",
+    "prettier": "latest",
+    "sort-package-json": "latest",
+    "ts-jest": "latest",
+    "typescript": "latest"
+  }
+}
