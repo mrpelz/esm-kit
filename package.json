@@ -1,6 +1,6 @@
 {
   "name": "@mrpelz/esm-kit",
-  "version": "0.0.0",
+  "version": "0.0.1-chore-init-d500448a.0",
   "description": "smallest possible tooling to allow use of bare module indentifiers in browsers",
   "repository": {
     "type": "git",
