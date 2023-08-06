@@ -1,6 +1,6 @@
 import { exec } from 'node:child_process';
 import { error as consoleError, log } from 'node:console';
-import { Server } from 'node:http';
+import { RequestListener, Server } from 'node:http';
 import { join, relative, resolve } from 'node:path';
 import { cwd as cwd_ } from 'node:process';
 import { promisify } from 'node:util';
@@ -26,18 +26,9 @@ const getRootEntry = async () => {
   }
 };
 
-export const serveRedirects = async (port: number): Promise<void> => {
-  const rootEntry = await getRootEntry();
-  if (!rootEntry) {
-    consoleError('no root entry found');
-    return;
-  }
-
-  log(`rootEntry: "${rootEntry}"`);
-
-  const server = new Server();
-
-  server.on('request', async (request, response) => {
+const handleRequest =
+  (rootEntry: URL): RequestListener =>
+  async (request, response) => {
     try {
       const {
         headers: { host },
@@ -107,7 +98,19 @@ export const serveRedirects = async (port: number): Promise<void> => {
       response.statusCode = 500;
       response.end(error.toString());
     }
-  });
+  };
+
+export const serveRedirects = async (port: number): Promise<void> => {
+  const rootEntry = await getRootEntry();
+  if (!rootEntry) {
+    consoleError('no root entry found');
+    return;
+  }
+
+  log(`rootEntry: "${rootEntry.pathname}"`);
+
+  const server = new Server();
+  server.on('request', handleRequest(rootEntry));
 
   server.listen(port, () => log(`listening on port ${port}\n`));
 };
