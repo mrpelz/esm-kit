@@ -1,15 +1,17 @@
 #!/usr/bin/env -S node --use_strict --enable-source-maps --experimental-modules --experimental-import-meta-resolve
 
-import { argv, exit, stderr } from 'node:process';
+import { error } from 'node:console';
+import { argv, exit } from 'node:process';
 
 import { serveRedirects } from '../main.js';
 
-const port = argv.at(-1);
+const lastArg = argv.at(-1);
+const port = lastArg ? Number.parseInt(lastArg, 10) : undefined;
 
-if (!port) {
-  stderr.write('supply port as argument');
+if (!port || Number.isNaN(port) || !Number.isInteger(port)) {
+  error('supply port as argument');
 
   exit(1);
 }
 
-serveRedirects(Number.parseInt(port, 10));
+serveRedirects(port);
