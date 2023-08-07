@@ -1,6 +1,6 @@
 {
   "name": "@mrpelz/esm-kit",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "smallest possible tooling to allow use of bare module indentifiers in browsers",
   "repository": {
     "type": "git",
