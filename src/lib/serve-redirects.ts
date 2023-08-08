@@ -26,6 +26,28 @@ const getRootEntry = async () => {
   }
 };
 
+const resolvePathElement = async (pathElement: string, moduleUrl: URL) => {
+  log(`resolving "${pathElement}"\n\tsource: "${moduleUrl}"`);
+
+  try {
+    const resolvedPath = await import.meta.resolve?.(pathElement, moduleUrl);
+    if (!resolvedPath) return undefined;
+
+    const nextModuleUrl = new URL(resolvedPath, 'file:');
+    log(`\ttarget: "${nextModuleUrl}"`);
+
+    return nextModuleUrl;
+  } catch (error) {
+    consoleError(
+      new Error(`cannot resolve module "${pathElement}"`, {
+        cause: error,
+      }),
+    );
+
+    return undefined;
+  }
+};
+
 const handleRequest =
   (rootEntry: URL): RequestListener =>
   async (request, response) => {
@@ -55,27 +77,14 @@ const handleRequest =
       let moduleUrl = rootEntry;
 
       for (const pathElement of pathElements) {
-        log(`resolving "${pathElement}"\n\tsource: "${moduleUrl}"`);
+        // eslint-disable-next-line no-await-in-loop
+        let elementModuleUrl = await resolvePathElement(pathElement, moduleUrl);
 
-        try {
-          // eslint-disable-next-line no-await-in-loop
-          const resolvedPath = await import.meta.resolve?.(
-            pathElement,
-            moduleUrl,
-          );
-          if (!resolvedPath) break;
-
-          const nextModuleUrl = new URL(resolvedPath, 'file:');
-          log(`\ttarget: "${nextModuleUrl}"`);
-
-          if (!nextModuleUrl) break;
-
-          moduleUrl = nextModuleUrl;
-        } catch (error) {
-          throw new Error(`cannot resolve module "${pathElement}"`, {
-            cause: error,
-          });
+        if (!elementModuleUrl) {
+          throw new Error('resolved path not found');
         }
+
+        moduleUrl = elementModuleUrl;
       }
 
       log('');
@@ -95,7 +104,7 @@ const handleRequest =
     } catch (error) {
       consoleError(error);
 
-      response.statusCode = 500;
+      response.statusCode = 404;
       response.end(error.toString());
     }
   };
