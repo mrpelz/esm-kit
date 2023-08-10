@@ -5,8 +5,6 @@ import { join, relative, resolve } from 'node:path';
 import { cwd as cwd_ } from 'node:process';
 import { promisify } from 'node:util';
 
-import { PREFIX } from './util.js';
-
 const cwd = cwd_();
 
 const nodeModulesDirectory = join(cwd, 'node_modules');
@@ -26,20 +24,23 @@ const getRootEntry = async () => {
   }
 };
 
-const resolvePathElement = async (pathElement: string, moduleUrl: URL) => {
-  log(`resolving "${pathElement}"\n\tsource: "${moduleUrl}"`);
+const resolvePath = async (moduleIdentifier: string, parentModule: URL) => {
+  log(`resolving "${moduleIdentifier}"\n\tsource: "${parentModule}"`);
 
   try {
-    const resolvedPath = await import.meta.resolve?.(pathElement, moduleUrl);
-    if (!resolvedPath) return undefined;
+    const modulePath = await import.meta.resolve?.(
+      moduleIdentifier,
+      parentModule,
+    );
+    if (!modulePath) return undefined;
 
-    const nextModuleUrl = new URL(resolvedPath, 'file:');
-    log(`\ttarget: "${nextModuleUrl}"`);
+    const module = new URL(modulePath, 'file:');
+    log(`\ttarget: "${module}"`);
 
-    return nextModuleUrl;
+    return module;
   } catch (error) {
     consoleError(
-      new Error(`cannot resolve module "${pathElement}"`, {
+      new Error(`cannot resolve module "${moduleIdentifier}"`, {
         cause: error,
       }),
     );
@@ -67,39 +68,39 @@ const handleRequest =
 
       const { pathname } = new URL(url_, `http://${host}`);
 
-      const pathElements = pathname
+      const paths = pathname
         .slice(1)
         .split('+')
         .map((pathElement) => decodeURIComponent(pathElement));
 
-      log(`resolving pathElements: ${JSON.stringify(pathElements)}`);
+      log(`resolving pathElements: ${JSON.stringify(paths)}`);
 
-      let moduleUrl = rootEntry;
+      let module = rootEntry;
 
-      for (const pathElement of pathElements) {
+      for (const path of paths) {
         // eslint-disable-next-line no-await-in-loop
-        let elementModuleUrl = await resolvePathElement(pathElement, moduleUrl);
+        let pathModule = await resolvePath(path, module);
 
-        if (!elementModuleUrl) {
+        if (!pathModule) {
           throw new Error('resolved path not found');
         }
 
-        moduleUrl = elementModuleUrl;
+        module = pathModule;
       }
 
       log('');
 
-      const { pathname: modulePath } = moduleUrl;
+      const { pathname: modulePath } = module;
 
       if (!modulePath.startsWith(nodeModulesDirectory)) {
         throw new Error('resolved path is not allowed');
       }
 
-      response.statusCode = 308;
-      response.setHeader(
-        'Location',
-        `${PREFIX}${relative(nodeModulesDirectory, modulePath)}`,
-      );
+      const relativeModulePath = relative(nodeModulesDirectory, modulePath);
+
+      response.statusCode = 307;
+      response.setHeader('Location', `/${relativeModulePath}`);
+
       response.end();
     } catch (error) {
       consoleError(error);

@@ -5,10 +5,17 @@ import { argv, exit } from 'node:process';
 
 import { generateImportMap, replaceInFile } from '../main.js';
 
-const filePath = argv.at(-1);
+const filePath = argv.at(-2);
+const prefix = argv.at(-1);
 
 if (!filePath || !filePath.endsWith('.html')) {
-  error('supply file path to HTML-file as argument');
+  error('supply file path to HTML-file as second-to-last argument');
+
+  exit(1);
+}
+
+if (!prefix) {
+  error('supply URL-prefix as last argument');
 
   exit(1);
 }
@@ -16,7 +23,7 @@ if (!filePath || !filePath.endsWith('.html')) {
 await replaceInFile(
   filePath,
   `<script type="importmap">${JSON.stringify(
-    await generateImportMap(),
+    await generateImportMap(prefix),
   )}</script>`,
   new RegExp('<script type="importmap">.*?<\\/script>', 'g'),
 );

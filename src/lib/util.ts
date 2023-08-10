@@ -3,8 +3,6 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { cwd as cwd_ } from 'node:process';
 
-export const PREFIX = '/modules/';
-
 const cwd = cwd_();
 
 export const replaceInFile = async (
