@@ -1,9 +1,11 @@
 import { error, log } from 'node:console';
 import { readFile, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { cwd as cwd_ } from 'node:process';
 
-const cwd = cwd_();
+export const cwd = cwd_();
+
+export const nodeModulesDirectory = join(cwd, 'node_modules');
 
 export const replaceInFile = async (
   filePath_: string,

@@ -1,13 +1,10 @@
 import { exec } from 'node:child_process';
 import { error as consoleError, log } from 'node:console';
 import { RequestListener, Server } from 'node:http';
-import { join, relative, resolve } from 'node:path';
-import { cwd as cwd_ } from 'node:process';
+import { relative, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
-const cwd = cwd_();
-
-const nodeModulesDirectory = join(cwd, 'node_modules');
+import { cwd, nodeModulesDirectory } from './util.js';
 
 const getRootEntry = async () => {
   try {

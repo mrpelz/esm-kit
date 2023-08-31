@@ -14,11 +14,15 @@
   "types": "dist/main.d.ts",
   "bin": {
     "esm-kit-generate-importmap": "dist/cli/generate-importmap.js",
-    "esm-kit-serve-redirects": "dist/cli/serve-redirects.js"
+    "esm-kit-serve-redirects": "dist/cli/serve-redirects.js",
+    "esm-kit-serve-resolved-specifiers": "dist/cli/serve-resolved-specifiers.js"
   },
   "files": [
     "dist/**/*.{js,map,ts}"
   ],
+  "dependencies": {
+    "es-module-lexer": "latest"
+  },
   "devDependencies": {
     "@commitlint/cli": "latest",
     "@commitlint/config-conventional": "latest",
