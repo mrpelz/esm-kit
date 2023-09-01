@@ -10,6 +10,11 @@ import { cwd } from './util.js';
 
 const files = new Map<string, string>();
 
+process.on('SIGUSR2', () => {
+  log('received SIGUSR2, deleting in-memory module cache');
+  files.clear();
+});
+
 await init;
 
 const isBareIdentifier = (identifier: string) => {
