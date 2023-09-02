@@ -26,9 +26,6 @@ const isBareIdentifier = (identifier: string) => {
 };
 
 const resolveSpecifier = async (specifier: string, moduleUrl: URL) => {
-  if (!isBareIdentifier(specifier)) return undefined;
-  if (specifier === 'import.meta') return undefined;
-
   log(`\thandling specifier "${specifier}"`);
 
   try {
@@ -56,6 +53,9 @@ const modifyImport = async (
   specifierEnd: number,
 ) => {
   const specifier = src.slice(specifierStart, specifierEnd);
+
+  if (!isBareIdentifier(specifier)) return null;
+  if (specifier === 'import.meta') return null;
 
   const resolvedSpecifier = await resolveSpecifier(specifier, moduleUrl);
   if (!resolvedSpecifier) return undefined;
@@ -100,7 +100,7 @@ const modifySrc = async (pathname: string) => {
       specifierEnd,
     );
 
-    if (!nextSrc) {
+    if (nextSrc === undefined) {
       // eslint-disable-next-line no-await-in-loop
       nextSrc = await modifyImport(
         modifiedSrc,
