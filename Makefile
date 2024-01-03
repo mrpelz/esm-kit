@@ -1,6 +1,3 @@
-include node_modules/@mrpelz/boilerplate/config/Makefile
+BASE_FILE := $(shell npm ls --parseable --silent "@mrpelz/boilerplate-node" 2>/dev/null)
 
-util_mark_executable:
-	chmod +x dist/cli/*.js
-
-transform_prod: util_clear transform_typescript util_mark_executable
+include $(BASE_FILE)/Makefile
