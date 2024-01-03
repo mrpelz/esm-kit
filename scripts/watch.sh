@@ -1,1 +1,1 @@
-../node_modules/@mrpelz/boilerplate/config/watch.sh
+../node_modules/@mrpelz/boilerplate-node/scripts/watch.sh
